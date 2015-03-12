@@ -226,8 +226,6 @@ int main()
     inputfile >> Depth;
     inputfile >> MagType;
     inputfile >> MagSize;
-
-    
     
 
     return 0;
