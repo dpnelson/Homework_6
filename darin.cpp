@@ -10,7 +10,6 @@
 #include <fstream>
 #include <iomanip>
 #include <stdlib.h>
-#include <math.h>
 #include <ctype.h>
 #include <stdio.h>
 
@@ -34,13 +33,37 @@ void open_log_output(ofstream &LF, ofstream &OF, string LFname, string OFname)
     OF.open(OFname.c_str());
 }
 
+void DateLengthFail(ofstream &logfile)
+{
+    cout    << "Invalid Date Length\n";
+    logfile << "Invalid Data Length\n";
+    exit(EXIT_FAILURE);
+}
+
+void DateSeparatorFail(ofstream &logfile)
+{
+    cout    << "Invalid Separator\n";
+    logfile << "Invalid Separator\n";
+    exit(EXIT_FAILURE);
+}
+
+void DateCharacterFail(ofstream &logfile)
+{
+    cout    << "Error: Non-number in Date\n";
+    logfile << "Error: Non-number in Date\n";
+    exit(EXIT_FAILURE);
+}
+
+void DifferentDateSeparators(ofstream &logfile)
+{
+    cout    << "Error: Inconsistent date separators\n";
+    logfile << "Error: Inconsistent date separators\n";
+    exit(EXIT_FAILURE);
+}
+
 int main()
 {
- //   string EventID, Date, Time, TimeZone, word, Name, Ename;
- //   string MagType;
- //   string E[4];
- //   double Longitude, Latitude, Depth;
- //   float MagSize;
+    string EventID, Date;
     
     string   inputfilename, outputfilename, logfilename;
     ifstream inputfile;
@@ -50,6 +73,33 @@ int main()
     cin  >> inputfilename;
     open_input(inputfile, inputfilename);
     open_log_output(logfile, outputfile, "darin.log", "darin.out");
+    
+    inputfile >> EventID;
+    inputfile >> Date;
+    
+    if (Date.length() != 10)
+    {
+        DateLengthFail(logfile);
+    }
+    
+    for (int i = 0; i <= 9; i++)
+    {
+        if (i == 2 || i == 5)
+        {
+            string tempString = Date.substr(i,1);
+            if (tempString.compare("/") != 0 && tempString.compare("-") != 0)
+            {
+                DateSeparatorFail(logfile);
+            }
+        } else if ((!isdigit(Date[i])))
+        {
+            DateCharacterFail(logfile);
+        }
+    }
+    if (Date[2] != Date[5])
+    {
+        DifferentDateSeparators(logfile);
+    }
 
     return 0;
 
