@@ -276,14 +276,18 @@ void get_eqDepth(ifstream &IF, earthquake &eq)
     IF >> eq.depth;
 }
 
+void changetoupper(string &temp2)
+{
+    for (int i = 0; i <= temp2.size(); i++)
+    {
+        temp2[i] = toupper(temp2[i]);
+    }
+}
+
 void get_eqMag_Type(ifstream &IF, earthquake &eq, string temp)
 {
     IF >> temp;
-    for (int i = 0; i <= temp.size(); i++)
-    {
-        temp[i] = toupper(temp[i]);
-    }
-
+    changetoupper(temp);
     eq.magnitude_type = temp;
 }
 
@@ -342,8 +346,98 @@ void BadEntryNC(ofstream &LF, int z, int &change)
 {
     if (change == 0) change++;
     z++;
-    cout << "Entry # " << right << setw(3) << z << " ignored. Invalid Network code\n";
-    LF   << "Entry # " << right << setw(3) << z << " ignored. Invalid Network code\n";
+    cout << "Entry # " << right << setw(3) << z << " ignored. Invalid network code.";
+    LF   << "Entry # " << right << setw(3) << z << " ignored. Invalid network code.";
+}
+
+bool checkSC(inputs &in, int k)
+{
+    if(in.inp[k][1].length() != 3 && in.inp[k][1].length() != 5)
+    {
+        return false;
+    } else
+    {
+        if (in.inp[k][1].length() == 5)
+        {
+            int num = 4;
+            for (int w = 0; w <= num; w++)
+            {
+                if(!isdigit(in.inp[k][1][w]))
+                {
+                    return false;
+                } 
+            }
+        } else
+        {
+            int num = 2;
+            for (int w = 0; w <= num; w++)
+            {
+                if(!isalpha(in.inp[k][1][w]))
+                {
+                    return false;
+                }
+                
+                string temp = in.inp[k][1];
+                string temp1 = temp;
+                changetoupper(temp);
+                
+                if (temp != temp1)
+                {
+                    return false;
+                }
+                
+            }
+        }
+        return true;
+    }
+};
+
+void BadEntrySC(ofstream &LF, int z, int &change)
+{
+    z++;
+    if (change == 0)
+    {
+        change++;
+        cout << "Entry # " << right << setw(3) << z << " ignored.";
+        LF   << "Entry # " << right << setw(3) << z << " ignored.";
+    }
+    cout << " Invalid station code.";
+    LF   << " Invalid station code.";
+}
+
+bool checkBT(inputs &in, int k)
+{
+    if(in.inp[k][0] == "CE")
+    {
+        in.inp[k][0] = CE;
+        return true;
+    } else if (in.inp[k][0] == "CI")
+    {
+        in.inp[k][0] = CI;
+        return true;
+    } else if (in.inp[k][0] == "FA")
+    {
+        in.inp[k][0] = FA;
+        return true;
+    } else if (in.inp[k][0] == "NP")
+    {
+        in.inp[k][0] = NP;
+        return true;
+    } else if (in.inp[k][0] == "WR")
+    {
+        in.inp[k][0] = WR;
+        return true;
+    } else {
+        return false;
+    }
+};
+
+void BadEntryBT(ofstream &LF, int z, int &change)
+{
+    if (change == 0) change++;
+    z++;
+    cout << "Entry # " << right << setw(3) << z << " ignored. Invalid band type.";
+    LF   << "Entry # " << right << setw(3) << z << " ignored. Invalid band type.";
 }
 
 void get_eqMag(ifstream &IF, earthquake &eq)
@@ -511,6 +605,25 @@ int main()
             BadEntryNC(logfile, y, changer);
         } else {
             
+        }
+        
+        if(checkSC(in, y) == false)
+        {
+            BadEntrySC(logfile, y, changer);
+        } else {
+            
+        }
+        
+        if(checkBT(in, y) == false)
+        {
+            BadEntryBT(logfile, y, changer);
+        } else {
+            
+        }
+   
+        if (changer !=0)
+        {
+            cout << "\n";
         }
     }
     
