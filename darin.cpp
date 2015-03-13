@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <stdio.h>
+#include <math.h>
 
 using namespace std;
 
@@ -105,6 +106,22 @@ void TimeZoneCharacterFail(ofstream &logfile)
     exit(EXIT_FAILURE);
 }
 
+void MagnitudeTypeFail(ofstream &logfile)
+{
+    cout    << "Error: Magnitude type not acceptable\n";
+    logfile << "Error: Magnitude type not acceptable\n";
+    logfile.flush();
+    exit(EXIT_FAILURE);
+}
+
+void MagSizeFail(ofstream &logfile)
+{
+    cout    << "Error: Negative Magnitude\n";
+    logfile << "Error: Negative Magnitude\n";
+    logfile.flush();
+    exit(EXIT_FAILURE);
+}
+
 enum months {
     January = 1,
     February,
@@ -120,9 +137,122 @@ enum months {
     December
 };
 
+enum TypeofMag {
+    ML,
+    MS,
+    MB,
+    MW
+};
+
+struct earthquake {
+    string id;
+    string date;
+    string time;
+    string timezone;
+    string earthquake_name;
+    double longitude;
+    double latitude;
+    double depth;
+    string magnitude_type;
+    float magnitude;
+};
+
+void get_eqID(ifstream &IF, earthquake &eq)
+{
+    IF >> eq.id;
+}
+
+void get_eqDate(ifstream &IF, earthquake &eq)
+{
+    IF >> eq.date;
+}
+
+void get_eqTime(ifstream &IF, earthquake &eq)
+{
+    IF >> eq.time;
+}
+
+void get_eqTimeZone(ifstream &IF, earthquake &eq)
+{
+    IF >> eq.timezone;
+}
+
+void get_eqName(ifstream &IF, earthquake &eq, string Name, string Ename, int check, int check2)
+{
+    while(check == 1)
+    {
+        IF >> Name;
+        if (check2 == 1)
+        {
+            Ename = Name;
+            check2 = 0;
+        } else
+        {
+            Ename = Ename + " " + Name;
+        }
+        if(IF.peek() == '\n') check = 0;
+    }
+    
+    eq.earthquake_name = Ename;
+}
+
+void get_eqLongitude(ifstream &IF, earthquake &eq)
+{
+    IF >> eq.longitude;
+}
+
+void get_eqLatitude(ifstream &IF, earthquake &eq)
+{
+    IF >> eq.latitude;
+}
+
+void get_eqDepth(ifstream &IF, earthquake &eq)
+{
+    IF >> eq.depth;
+}
+
+void get_eqMag_Type(ifstream &IF, earthquake &eq, string temp)
+{
+    IF >> temp;
+    for (int i = 0; i <= temp.size(); i++)
+    {
+        temp[i] = toupper(temp[i]);
+    }
+
+    eq.magnitude_type = temp;
+}
+
+bool set_MagType(string mag, earthquake &eq)
+{
+    if(mag == "ML")
+    {
+        eq.magnitude = ML;
+        return true;
+    } else if (mag == "MS")
+    {
+        eq.magnitude = MS;
+        return true;
+    } else if (mag == "MB")
+    {
+        eq.magnitude = MB;
+        return true;
+    } else if (mag == "MW")
+    {
+        eq.magnitude = MW;
+        return true;
+    } else
+    {
+        return false;
+    }
+};
+
+void get_eqMag(ifstream &IF, earthquake &eq)
+{
+    IF >> eq.magnitude;
+}
+
 int main()
 {
-    string EventID, Date, Time, TimeZone;
     
     string   inputfilename, outputfilename, logfilename;
     ifstream inputfile;
@@ -133,10 +263,12 @@ int main()
     open_input(inputfile, inputfilename);
     open_log_output(logfile, outputfile, "darin.log", "darin.out");
     
-    inputfile >> EventID;
-    inputfile >> Date;
+    earthquake eq;
     
-    if (Date.length() != 10)
+    get_eqID(inputfile, eq);
+    get_eqDate(inputfile, eq);
+    
+    if (eq.date.length() != 10)
     {
         DateLengthFail(logfile);
     }
@@ -145,56 +277,56 @@ int main()
     {
         if (i == 2 || i == 5)
         {
-            string tempString = Date.substr(i,1);
+            string tempString = eq.date.substr(i,1);
             if (tempString.compare("/") != 0 && tempString.compare("-") != 0)
             {
                 DateSeparatorFail(logfile);
             }
-        } else if ((!isdigit(Date[i])))
+        } else if ((!isdigit(eq.date[i])))
         {
             DateCharacterFail(logfile);
         }
     }
-    if (Date[2] != Date[5])
+    if (eq.date[2] != eq.date[5])
     {
         DifferentDateSeparators(logfile);
     }
     
-    inputfile >> Time;
+    get_eqTime(inputfile, eq);
     
     for (int i = 0; i <= 11; i++)
     {
         if (i == 2 || i == 5)
         {
-            string tempString = Time.substr(i,1);
+            string tempString = eq.time.substr(i,1);
             if (tempString.compare(":") != 0)
             {
                 TimeSeparatorFail(logfile);
             }
         } else if (i == 8)
         {
-            string tempString = Time.substr(i,1);
+            string tempString = eq.time.substr(i,1);
             if (tempString.compare(".") != 0)
             {
                 TimeSeparatorFail2(logfile);
             }
         } else {
-            if (!isdigit(Time[i]))
+            if (!isdigit(eq.time[i]))
             {
                 TimeCharacterFail(logfile);
             }
         }
     }
     
-    inputfile >> TimeZone;
+    get_eqTimeZone(inputfile, eq);
     
-    if (TimeZone.length() != 3)
+    if (eq.timezone.length() != 3)
     {
         TimeZoneLengthFail(logfile);
     }
     for (int i = 0; i < 3; i++)
     {
-        if (!isalpha(TimeZone[i]))
+        if (!isalpha(eq.timezone[i]))
         {
             TimeZoneCharacterFail(logfile);
         }
@@ -203,29 +335,32 @@ int main()
     string Name, Ename;
     int check = 1, check2 = 1;
     
-    while(check == 1)
+    get_eqName(inputfile, eq, Name, Ename, check, check2);
+    
+    string Longitude, Latitude, Depth;
+    
+    get_eqLongitude(inputfile, eq);
+    get_eqLatitude(inputfile, eq);
+    get_eqDepth(inputfile, eq);
+    
+    string temp;
+    get_eqMag_Type(inputfile, eq, temp);
+    
+    if(set_MagType(eq.magnitude_type, eq) == false)
     {
-        inputfile >> Name;
-        if (check2 == 1)
-        {
-            Ename = Name;
-            check2 = 0;
-        } else
-        {
-            Ename = Ename + " " + Name;
-        }
-        if(inputfile.peek() == '\n') check = 0;
+        MagnitudeTypeFail(logfile);
     }
     
-    double Longitude, Latitude, Depth;
-    string MagType;
-    float  MagSize;
+    get_eqMag(inputfile, eq);
     
-    inputfile >> Longitude;
-    inputfile >> Latitude;
-    inputfile >> Depth;
-    inputfile >> MagType;
-    inputfile >> MagSize;
+    if (eq.magnitude < 0)
+    {
+        MagSizeFail(logfile);
+    }
+
+    
+    int j = 1;
+    j++;
     
 
     return 0;
