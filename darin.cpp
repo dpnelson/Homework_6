@@ -405,39 +405,86 @@ void BadEntrySC(ofstream &LF, int z, int &change)
     LF   << " Invalid station code.";
 }
 
+void Remove_Non_Letters(inputs &in, int y, int place)
+{
+    string Altered;
+    for (int i = 0; i <= in.inp[y][place].length(); i++)
+    {
+        if (isalpha(in.inp[y][place][i]))
+        {
+            Altered += in.inp[y][place][i];
+        }
+    }
+    changetoupper(Altered);
+    in.inp[y][place] = Altered;
+}
+
 bool checkBT(inputs &in, int k)
 {
-    if(in.inp[k][0] == "CE")
+    if(in.inp[k][2] == "LONGPERIOD")
     {
-        in.inp[k][0] = CE;
+        in.inp[k][2] = LONGPERIOD;
         return true;
-    } else if (in.inp[k][0] == "CI")
+    } else if (in.inp[k][2] == "SHORTPERIOD")
     {
-        in.inp[k][0] = CI;
+        in.inp[k][2] = SHORTPERIOD;
         return true;
-    } else if (in.inp[k][0] == "FA")
+    } else if (in.inp[k][2] == "BROADBAND")
     {
-        in.inp[k][0] = FA;
+        in.inp[k][2] = BROADBAND;
         return true;
-    } else if (in.inp[k][0] == "NP")
+    } else
     {
-        in.inp[k][0] = NP;
-        return true;
-    } else if (in.inp[k][0] == "WR")
-    {
-        in.inp[k][0] = WR;
-        return true;
-    } else {
         return false;
     }
 };
 
+
 void BadEntryBT(ofstream &LF, int z, int &change)
 {
-    if (change == 0) change++;
     z++;
-    cout << "Entry # " << right << setw(3) << z << " ignored. Invalid band type.";
-    LF   << "Entry # " << right << setw(3) << z << " ignored. Invalid band type.";
+    if (change == 0)
+    {
+        change++;
+        cout << "Entry # " << right << setw(3) << z << " ignored.";
+        LF   << "Entry # " << right << setw(3) << z << " ignored.";
+    }
+    cout << " Invalid band type.";
+    LF   << " Invalid band type.";
+}
+
+bool checkIT(inputs &in, int k)
+{
+    if(in.inp[k][3] == "HIGHGAIN")
+    {
+        in.inp[k][3] = HIGHGAIN;
+        return true;
+    } else if (in.inp[k][3] == "LOWGAIN")
+    {
+        in.inp[k][3] = LOWGAIN;
+        return true;
+    } else if (in.inp[k][3] == "ACCELEROMETER")
+    {
+        in.inp[k][3] = ACCELEROMETER;
+        return true;
+    } else
+    {
+        return false;
+    }
+};
+
+
+void BadEntryIT(ofstream &LF, int z, int &change)
+{
+    z++;
+    if (change == 0)
+    {
+        change++;
+        cout << "Entry # " << right << setw(3) << z << " ignored.";
+        LF   << "Entry # " << right << setw(3) << z << " ignored.";
+    }
+    cout << " Invalid instrument type.";
+    LF   << " Invalid instrument type.";
 }
 
 void get_eqMag(ifstream &IF, earthquake &eq)
@@ -614,9 +661,20 @@ int main()
             
         }
         
+        Remove_Non_Letters(in, y, 2);
+        
         if(checkBT(in, y) == false)
         {
             BadEntryBT(logfile, y, changer);
+        } else {
+            
+        }
+        
+        Remove_Non_Letters(in, y, 3);
+        
+        if(checkIT(in, y) == false)
+        {
+            BadEntryIT(logfile, y, changer);
         } else {
             
         }
@@ -624,6 +682,7 @@ int main()
         if (changer !=0)
         {
             cout << "\n";
+            logfile << "\n";
         }
     }
     
