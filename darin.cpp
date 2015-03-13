@@ -487,6 +487,73 @@ void BadEntryIT(ofstream &LF, int z, int &change)
     LF   << " Invalid instrument type.";
 }
 
+bool checkOR(inputs &in, int k)
+{
+    if(in.inp[k][4].length() < 1 || in.inp[k][4].length() > 3)
+    {
+        return false;
+    }
+    int alphacount = 0, numbercount = 0;
+    for (int g = 1; g <= in.inp[k][4].length(); g++)
+    {
+        if (isalpha(in.inp[k][4][g-1]))
+        {
+            alphacount++;
+        } else if (isdigit(in.inp[k][4][g-1]))
+        {
+            numbercount++;
+        } else
+        {
+            return false;
+        }
+    }
+    if (alphacount != in.inp[k][4].length() && numbercount != in.inp[k][4].length())
+    {
+        return false;
+    }
+    
+    if (alphacount != 0)
+    {
+        changetoupper(in.inp[k][4]);
+        for (int c = 1; c <= in.inp[k][4].length(); c++)
+        {
+            string tempString = in.inp[k][4].substr(c-1,1);
+            if (tempString.compare("N") && tempString.compare("E") && tempString.compare("Z"))
+            {
+                return false;
+            }
+        }
+    }
+    
+    if (numbercount != 0)
+    {
+        for (int c = 1; c <= in.inp[k][4].length(); c++)
+        {
+            string tempString = in.inp[k][4].substr(c-1,1);
+            if (tempString.compare("1") && tempString.compare("2") && tempString.compare("3"))
+            {
+                return false;
+            }
+        }
+    }
+    
+    return true;
+};
+
+
+void BadEntryOR(ofstream &LF, int z, int &change)
+{
+    z++;
+    if (change == 0)
+    {
+        change++;
+        cout << "Entry # " << right << setw(3) << z << " ignored.";
+        LF   << "Entry # " << right << setw(3) << z << " ignored.";
+    }
+    cout << " Invalid orientation.";
+    LF   << " Invalid orientation.";
+}
+
 void get_eqMag(ifstream &IF, earthquake &eq)
 {
     IF >> eq.magnitude;
@@ -644,6 +711,7 @@ int main()
     Read_Entries(inputfile, logfile, in, j);
     j--;
     
+    int countgood = 0;
     for (int y = 0; y <= j; y++)
     {
         int changer = 0;
@@ -678,11 +746,19 @@ int main()
         } else {
             
         }
+        
+        if(checkOR(in, y) == false)
+        {
+            BadEntryOR(logfile, y, changer);
+        } else {
+            
+        }
    
         if (changer !=0)
         {
             cout << "\n";
             logfile << "\n";
+            countgood++;
         }
     }
     
