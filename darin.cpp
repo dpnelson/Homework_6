@@ -122,6 +122,14 @@ void MagSizeFail(ofstream &logfile)
     exit(EXIT_FAILURE);
 }
 
+void MonthRangeError(ofstream &logfile)
+{
+    cout    << "Error: Month Out of Range\n";
+    logfile << "Error: Month out of Range\n";
+    logfile.flush();
+    exit(EXIT_FAILURE);
+}
+
 enum months {
     January = 1,
     February,
@@ -136,6 +144,39 @@ enum months {
     November,
     December
 };
+
+void Month_to_Num(string M, int &monthnumm)
+{
+    if (M == "01") monthnumm = 1;
+    if (M == "02") monthnumm = 2;
+    if (M == "03") monthnumm = 3;
+    if (M == "04") monthnumm = 4;
+    if (M == "05") monthnumm = 5;
+    if (M == "06") monthnumm = 6;
+    if (M == "07") monthnumm = 7;
+    if (M == "08") monthnumm = 8;
+    if (M == "09") monthnumm = 9;
+    if (M == "10") monthnumm = 10;
+    if (M == "11") monthnumm = 11;
+    if (M == "12") monthnumm = 12;
+}
+
+void monthtostring(int M, string &MM)
+{
+    if (M == 1) MM  = "January";
+    if (M == 2) MM  = "February";
+    if (M == 3) MM  = "March";
+    if (M == 4) MM  = "April";
+    if (M == 5) MM  = "May";
+    if (M == 6) MM  = "June";
+    if (M == 7) MM  = "July";
+    if (M == 8) MM  = "August";
+    if (M == 9) MM  = "September";
+    if (M == 10) MM = "October";
+    if (M == 11) MM = "November";
+    if (M == 12) MM = "December";
+
+}
 
 enum TypeofMag {
     ML,
@@ -155,6 +196,30 @@ struct earthquake {
     double depth;
     string magnitude_type;
     float magnitude;
+};
+
+struct inputs {
+    string inp[300][5];
+};
+
+enum NetworkCode {
+    CE,
+    CI,
+    FA,
+    NP,
+    WR
+};
+
+enum BandTypes {
+    LONGPERIOD,
+    SHORTPERIOD,
+    BROADBAND
+};
+
+enum InstrumentTypes {
+    HIGHGAIN,
+    LOWGAIN,
+    ACCELEROMETER
 };
 
 void get_eqID(ifstream &IF, earthquake &eq)
@@ -246,10 +311,70 @@ bool set_MagType(string mag, earthquake &eq)
     }
 };
 
+bool checkNC(inputs &in, int k)
+{
+    if(in.inp[k][0] == "CE")
+    {
+        in.inp[k][0] = CE;
+        return true;
+    } else if (in.inp[k][0] == "CI")
+    {
+        in.inp[k][0] = CI;
+        return true;
+    } else if (in.inp[k][0] == "FA")
+    {
+        in.inp[k][0] = FA;
+        return true;
+    } else if (in.inp[k][0] == "NP")
+    {
+        in.inp[k][0] = NP;
+        return true;
+    } else if (in.inp[k][0] == "WR")
+    {
+        in.inp[k][0] = WR;
+        return true;
+    } else {
+        return false;
+    }
+};
+
+void BadEntryNC(ofstream &LF, int z, int &change)
+{
+    if (change == 0) change++;
+    z++;
+    cout << "Entry # " << right << setw(3) << z << " ignored. Invalid Network code\n";
+    LF   << "Entry # " << right << setw(3) << z << " ignored. Invalid Network code\n";
+}
+
 void get_eqMag(ifstream &IF, earthquake &eq)
 {
     IF >> eq.magnitude;
 }
+
+void ZeroEntries(ofstream &LF2)
+{
+    cout << "There are no entries to read\n";
+    LF2  << "There are no entries to read\n";
+//    LF2.flush();
+//    exit(EXIT_FAILURE);
+}
+
+void Read_Entries(ifstream &IF, ofstream &LF, inputs &in, int &k)
+{
+    while (IF >> in.inp[k][0])
+    {
+        IF >> in.inp[k][1];
+        IF >> in.inp[k][2];
+        IF >> in.inp[k][3];
+        IF >> in.inp[k][4];
+        k++;
+    }
+    if (k == 0)
+    {
+        ZeroEntries(LF);
+    }
+}
+
 
 int main()
 {
@@ -272,6 +397,21 @@ int main()
     {
         DateLengthFail(logfile);
     }
+    
+    string M = eq.date.substr(0,2);
+    
+    months month;
+    int monthnum;
+    Month_to_Num(M, monthnum);
+    
+    if (monthnum < 0 || monthnum > 12)
+    {
+        MonthRangeError(logfile);
+    }
+    
+    month = (months)monthnum;
+    string monthstring;
+    monthtostring(month, monthstring);
     
     for (int i = 0; i <= 9; i++)
     {
@@ -358,9 +498,29 @@ int main()
         MagSizeFail(logfile);
     }
 
+    inputs in;
+    int j = 0;
+    Read_Entries(inputfile, logfile, in, j);
+    j--;
     
-    int j = 1;
-    j++;
+    for (int y = 0; y <= j; y++)
+    {
+        int changer = 0;
+        if(checkNC(in, y) == false)
+        {
+            BadEntryNC(logfile, y, changer);
+        } else {
+            
+        }
+    }
+    
+    
+    
+    
+    
+    
+    int k = 1;
+    k++;
     
 
     return 0;
