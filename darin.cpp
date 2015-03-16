@@ -74,7 +74,7 @@ string getMagType(earthquake eq)
     if (eq.magnitude_type == MS) return "MS";
     if (eq.magnitude_type == MB) return "MB";
     if (eq.magnitude_type == MW) return "MW";
-    return "";
+    exit(EXIT_FAILURE);
 }
 
 
@@ -334,7 +334,7 @@ int MonthtoInteger(string MM)
     if (MM == "10") return 10;
     if (MM == "11") return 11;
     if (MM == "12") return 12;
-    return 12;
+    exit(EXIT_FAILURE);
 }
 
 enum months {
@@ -366,7 +366,7 @@ string monthtostring(months M)
     if (M == October  )  return  "October";
     if (M == November )  return  "November";
     if (M == December )  return  "December";
-    return "";
+    exit(EXIT_FAILURE);
 }
 
 enum NetworkCode {
@@ -395,7 +395,7 @@ struct entries {
     BandTypes BT;
     InstrumentTypes IT;
     string OR;
-} ENTS[5];
+} ENTS[300];
 
 void BadEntry(ofstream &LF, int z, int &change, string errortype)
 {
@@ -592,7 +592,7 @@ string getNC(struct entries &in, int k)
     if (ENTS[k].NC == FA )  return  "FA";
     if (ENTS[k].NC == NP )  return  "NP";
     if (ENTS[k].NC == WR )  return  "WR";
-    return "";
+    exit(EXIT_FAILURE);
 }
 
 string getBT(earthquake eq, entries &in, int y)
@@ -600,7 +600,7 @@ string getBT(earthquake eq, entries &in, int y)
     if (ENTS[y].BT == LONGPERIOD)  return "L";
     if (ENTS[y].BT == SHORTPERIOD) return "B";
     if (ENTS[y].BT == BROADBAND)   return "H";
-    return "";
+    exit(EXIT_FAILURE);
 }
 
 string getIT(earthquake eq, entries &in, int y)
@@ -608,7 +608,7 @@ string getIT(earthquake eq, entries &in, int y)
     if (ENTS[y].IT == HIGHGAIN)       return "H";
     if (ENTS[y].IT == LOWGAIN)        return "L";
     if (ENTS[y].IT == ACCELEROMETER)  return "N";
-    return "";
+    exit(EXIT_FAILURE);
 }
 
 string getOR(entries in, int k, int b)
@@ -639,7 +639,6 @@ void HeaderOutput(ofstream &OF, string DD, string MM, string YY, earthquake eq)
     OF <<  "# " << DD << " " << MM << " " << YY << " " << eq.time << " " << eq.timezone << " ";
     OF << StrMagType << " " << eq.magnitude << " " << eq.earthquake_name << " ";
     OF << "[" << eq.id << "] " << "(" << eq.longitude << ", " << eq.latitude << ", " << eq.depth << ")\n";
-    OF.flush();
 }
 
 void printout(ofstream &OF, string SN, earthquake &eq, string NetC, string SCab, string ITab, string O)
