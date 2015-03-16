@@ -3,6 +3,7 @@
 //  Homework #6
 //  3/26/15
 //  CIVL 7903
+//  Github URL: https://github.com/dpnelson/Homework_6
 //
 
 #include <iostream>
@@ -21,9 +22,9 @@ void open_input(ifstream &IF, string IF2)
     IF.open(IF2.c_str());
     if ( !IF.is_open() )
     {
-        cout << "Cannot open input file: "
-             << IF2
-             << endl;
+         cout << "Cannot open input file: "
+              << IF2
+              << endl;
         exit(EXIT_FAILURE);
     }
 }
@@ -32,11 +33,11 @@ void open_outputfiles(ofstream &file, string file2, string file3)
 {
     file.open(file3.c_str());
     if ( !file.is_open() )
-    {
-        cout << "Cannot open " << file2 << "file: " << file3;
-        file.flush();
-        exit(EXIT_FAILURE);
-    } 
+        {
+            cout << "Cannot open " << file2 << "file: " << file3;
+            file.flush();
+            exit(EXIT_FAILURE);
+        } 
 }
 
 void Fail(ofstream &logfile, string failtype)
@@ -101,18 +102,6 @@ bool CheckDateLength(earthquake eq)
 bool CheckMonthRange(int mon)
 {
     if (mon < 0 || mon > 12) return false;
-    return true;
-}
-
-bool CheckDayRange(int day)
-{
-    if (day < 1 || day > 31) return false;
-    return true;
-}
-
-bool CheckYearRange(int year)
-{
-    if (year > 2015) return false;
     return true;
 }
 
@@ -319,23 +308,6 @@ enum months {
     December
 };
 
-months Month_to_Num(int M)
-{
-    if (M == 1)  return January;
-    if (M == 2)  return February;
-    if (M == 3)  return March;
-    if (M == 4)  return April;
-    if (M == 5)  return May;
-    if (M == 6)  return June;
-    if (M == 7)  return July;
-    if (M == 8)  return August;
-    if (M == 9)  return September;
-    if (M == 10) return October;
-    if (M == 11) return November;
-    if (M == 12) return December;
-    return January;
-}
-
 string monthtostring(months M)
 {
     if (M == January  )  return  "January";
@@ -374,47 +346,47 @@ enum InstrumentTypes {
 };
 
 struct entries {
-    NetworkCode NC[300];
-    string SC[300];
-    BandTypes BT[300];
-    InstrumentTypes IT[300];
-    string OR[300];
-};
+    NetworkCode NC;
+    string SC;
+    BandTypes BT;
+    InstrumentTypes IT;
+    string OR;
+} ENTS[300];
 
-bool checkNC(entries &in, int k, string check)
+bool checkNC(struct entries &in, int k, string check, int index)
 {
     if(check == "CE")
     {
-        in.NC[k] = CE;
+        ENTS[k].NC = CE;
         return true;
     } else if (check == "CI")
     {
-        in.NC[k] = CI;
+        ENTS[k].NC = CI;
         return true;
     } else if (check == "FA")
     {
-        in.NC[k] = FA;
+        ENTS[k].NC = FA;
         return true;
     } else if (check == "NP")
     {
-        in.NC[k] = NP;
+        ENTS[k].NC = NP;
         return true;
     } else if (check == "WR")
     {
-        in.NC[k] = WR;
+        ENTS[k].NC = WR;
         return true;
     } else {
         return false;
     }
 };
 
-string NCtoString(entries &in, int k)
+string NCtoString(struct entries &in, int k)
 {
-    if (in.NC[k] == CE )  return  "CE";
-    if (in.NC[k] == CI )  return  "CI";
-    if (in.NC[k] == FA )  return  "FA";
-    if (in.NC[k] == NP )  return  "NP";
-    if (in.NC[k] == WR )  return  "WR";
+    if (ENTS[k].NC == CE )  return  "CE";
+    if (ENTS[k].NC == CI )  return  "CI";
+    if (ENTS[k].NC == FA )  return  "FA";
+    if (ENTS[k].NC == NP )  return  "NP";
+    if (ENTS[k].NC == WR )  return  "WR";
     return false;
 };
 
@@ -425,8 +397,7 @@ void BadEntryNC(ofstream &LF, int z, int &change)
     LF   << "Entry # " << right << setw(3) << z << " ignored. Invalid network code.";
 }
 
-
-bool checkSC(entries &in, int k, string StatCode)
+bool checkSC(struct entries &in, int k, string StatCode)
 {
     if(StatCode.length() != 3 && StatCode.length() != 5)
     {
@@ -464,7 +435,7 @@ bool checkSC(entries &in, int k, string StatCode)
                 
             }
         }
-        in.SC[k] = StatCode;
+        ENTS[k].SC = StatCode;
         return true;
     }
 };
@@ -481,7 +452,7 @@ void BadEntrySC(ofstream &LF, int z, int &change)
 }
 
 
-void Remove_Non_Letters(entries &in, int y, string &BandInst)
+void Remove_Non_Letters(struct entries &in, int y, string &BandInst)
 {
     string Altered;
     for (int i = 0; i < BandInst.length(); i++)
@@ -499,15 +470,15 @@ bool checkBT(entries &in, int k, string TB)
 {
     if(TB == "LONGPERIOD")
     {
-        in.BT[k] = LONGPERIOD;
+        ENTS[k].BT = LONGPERIOD;
         return true;
     } else if (TB == "SHORTPERIOD")
     {
-        in.BT[k] = SHORTPERIOD;
+        ENTS[k].BT = SHORTPERIOD;
         return true;
     } else if (TB == "BROADBAND")
     {
-        in.BT[k] = BROADBAND;
+        ENTS[k].BT = BROADBAND;
         return true;
     } else
     {
@@ -528,19 +499,19 @@ void BadEntryBT(ofstream &LF, int z, int &change)
     LF   << " Invalid band type.";
 }
 
-bool checkIT(entries &in, int k, string INST)
+bool checkIT(struct entries &in, int k, string INST)
 {
     if(INST == "HIGHGAIN")
     {
-        in.IT[k] = HIGHGAIN;
+        ENTS[k].IT = HIGHGAIN;
         return true;
     } else if (INST == "LOWGAIN")
     {
-        in.IT[k] = LOWGAIN;
+        ENTS[k].IT = LOWGAIN;
         return true;
     } else if (INST == "ACCELEROMETER")
     {
-        in.IT[k] = ACCELEROMETER;
+        ENTS[k].IT = ACCELEROMETER;
         return true;
     } else
     {
@@ -561,7 +532,7 @@ void BadEntryIT(ofstream &LF, int z, int &change)
     LF   << " Invalid instrument type.";
 }
 
-bool checkOR(entries &in, int k, string ORE)
+bool checkOR(struct entries &in, int k, string ORE)
 {
     if(ORE.length() < 1 || ORE.length() > 3)
     {
@@ -601,16 +572,16 @@ bool checkOR(entries &in, int k, string ORE)
     
     if (numbercount != 0)
     {
-        for (int c = 1; c <= in.OR[k].length(); c++)
+        for (int c = 1; c <= ENTS[k].OR.length(); c++)
         {
-            string tempString = in.OR[k].substr(c-1,1);
+            string tempString = ENTS[k].OR.substr(c-1,1);
             if (tempString.compare("1") && tempString.compare("2") && tempString.compare("3"))
             {
                 return false;
             }
         }
     }
-    in.OR[k] = ORE;
+    ENTS[k].OR = ORE;
     return true;
 };
 
@@ -646,24 +617,24 @@ void printout2(ofstream &OF, int zero)
 
 string getAbbevBT(earthquake eq, entries &in, int y)
 {
-    if (in.BT[y] == LONGPERIOD)  return "L";
-    if (in.BT[y] == SHORTPERIOD) return "B";
-    if (in.BT[y] == BROADBAND)   return "H";
+    if (ENTS[y].BT == LONGPERIOD)  return "L";
+    if (ENTS[y].BT == SHORTPERIOD) return "B";
+    if (ENTS[y].BT == BROADBAND)   return "H";
     return false;
 }
 
 string getAbbevIT(earthquake eq, entries &in, int y)
 {
-    if (in.IT[y] == HIGHGAIN)       return "H";
-    if (in.IT[y] == LOWGAIN)        return "L";
-    if (in.IT[y] == ACCELEROMETER)  return "N";
+    if (ENTS[y].IT == HIGHGAIN)       return "H";
+    if (ENTS[y].IT == LOWGAIN)        return "L";
+    if (ENTS[y].IT == ACCELEROMETER)  return "N";
     return false;
 }
 
 int NumSigs(entries &in, int k)
 {
     int i = 0;
-    while (isalpha(in.OR[k][i]) || isdigit(in.OR[k][i]))
+    while (isalpha(ENTS[k].OR[i]) || isdigit(ENTS[k].OR[i]))
     {
         i++;
     }
@@ -672,13 +643,13 @@ int NumSigs(entries &in, int k)
 
 string getOR(entries in, int k, int b)
 {
-    string end = in.OR[k].substr(b,1);
+    string end = ENTS[k].OR.substr(b,1);
     return end;
 }
 
 string RetrieveStatName(entries &in, int y)
 {
-    string last = in.SC[y];
+    string last = ENTS[y].SC;
     return last;
 }
 
@@ -800,14 +771,13 @@ int main()
     
     cout << "Header read correctly!\n";
     logfile << "Header read correctly!\n";
-
-    entries in;
     
     HeaderOutput(outputfile, D, monthstring, Y, eq, StrMagType);
     
+    struct entries in;
     int countbad = 0;
     int totsignals = 0;
-    int numentries = 0;
+    int validentries = 0, numentries = 0;
     string NetCode, StatCode, TypeBand, TypeInst, Orient;
     string NetworkCode[900], StationName[900], NCabbrev[900], ITabbrev[900], ORspot[900];
     while (inputfile >> NetCode)
@@ -815,37 +785,37 @@ int main()
         numentries++;
         int changer = 0;
 
-        if(checkNC(in, numentries-1, NetCode) == false)
+        if(checkNC(in, validentries, NetCode, 0) == false)
         {
             BadEntryNC(logfile, numentries, changer);
         }
         
         inputfile >> StatCode;
         
-        if(checkSC(in, numentries-1, StatCode) == false)
+        if(checkSC(in, validentries, StatCode) == false)
         {
             BadEntrySC(logfile, numentries, changer);
         }
         
         inputfile >> TypeBand;
-        Remove_Non_Letters(in, numentries, TypeBand);
+        Remove_Non_Letters(in, validentries + 1, TypeBand);
         
-        if(checkBT(in, numentries-1, TypeBand) == false)
+        if(checkBT(in,validentries, TypeBand) == false)
         {
             BadEntryBT(logfile, numentries, changer);
         }
         
         inputfile >> TypeInst;
-        Remove_Non_Letters(in, numentries-1, TypeInst);
+        Remove_Non_Letters(in, validentries + 1, TypeInst);
         
-        if(checkIT(in, numentries-1, TypeInst) == false)
+        if(checkIT(in, validentries, TypeInst) == false)
         {
             BadEntryIT(logfile, numentries, changer);
         }
         
         inputfile >> Orient;
         
-        if(checkOR(in, numentries-1, Orient) == false)
+        if(checkOR(in, validentries, Orient) == false)
         {
             BadEntryOR(logfile, numentries, changer);
         } 
@@ -857,28 +827,27 @@ int main()
             countbad++;
         } else
         {
-            int index = numentries - 1;
-            int newsignals = NumSigs(in, index);
+            int newsignals = NumSigs(in, validentries);
             
             for (int i = 0; i < newsignals ; i++)
             {
-                NetworkCode[totsignals+i] = NCtoString(in, numentries-1);
-                StationName[totsignals+i] = RetrieveStatName(in, numentries-1);
-                NCabbrev[totsignals+i] = getAbbevBT(eq, in, numentries-1);
-                ITabbrev[totsignals+i] = getAbbevIT(eq, in, numentries-1);
-                ORspot[totsignals+i] = getOR(in, numentries-1, i);
+                NetworkCode[totsignals+i] = NCtoString(in, validentries);
+                StationName[totsignals+i] = RetrieveStatName(in, validentries);
+                NCabbrev[totsignals+i] = getAbbevBT(eq, in, validentries);
+                ITabbrev[totsignals+i] = getAbbevIT(eq, in, validentries);
+                ORspot[totsignals+i] = getOR(in, validentries, i);
             }
-            
+            validentries++;
             totsignals += newsignals;
         }
     }
     
-    if (numentries == 0) printout2(outputfile, numentries);
+    if (validentries == 0) printout2(outputfile, validentries);
     outputfile << totsignals << "\n";
     
     for (int i = 0; i < totsignals; i++)
     {
-         printout(outputfile, StationName[i], eq, numentries-1, NetworkCode[i], totsignals, NCabbrev[i], ITabbrev[i], ORspot[i]);
+         printout(outputfile, StationName[i], eq, validentries, NetworkCode[i], totsignals, NCabbrev[i], ITabbrev[i], ORspot[i]);
     }
     
     int countgood = numentries - countbad;
@@ -890,7 +859,10 @@ int main()
     cout    << "Total signal names processed: " << totsignals << "\n";
     logfile << "Total signal names processed: " << totsignals << "\n";
     
-
+    
+    
+    
+    string Anykey;
     return 0;
 
 }
