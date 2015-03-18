@@ -17,30 +17,30 @@
 
 using namespace std;
 
-void open_input(ifstream &IF, string IF2)
+void open_input(ifstream &IF, string IF2)      // Opening input file
 {
     IF.open(IF2.c_str());
     if ( !IF.is_open() )
     {
-         cout << "Cannot open input file: "
-              << IF2
-              << endl;
+        cout << "Cannot open input file: "
+             << IF2
+             << endl;
         exit(EXIT_FAILURE);
     }
 }
 
-void open_outputfiles(ofstream &file, string file2, string file3)
+void open_outputfiles(ofstream &file, string file2, string file3)      // Opens log and output files
 {
     file.open(file3.c_str());
     if ( !file.is_open() )
-        {
-            cout << "Cannot open " << file2 << "file: " << file3;
-            file.flush();
-            exit(EXIT_FAILURE);
-        } 
+    {
+        cout << "Cannot open " << file2 << "file: " << file3;
+        file.flush();
+        exit(EXIT_FAILURE);
+    }
 }
 
-void Fail(ofstream &logfile, string failtype)
+void Fail(ofstream &logfile, string failtype)     // Handles any error in the header
 {
     cout    << "Error: " << failtype << "\n";
     logfile << "Error: " << failtype << "\n";
@@ -68,17 +68,7 @@ struct earthquake {
     float magnitude;
 };
 
-string getMagType(earthquake eq)
-{
-    if (eq.magnitude_type == ML) return "ML";
-    if (eq.magnitude_type == MS) return "MS";
-    if (eq.magnitude_type == MB) return "MB";
-    if (eq.magnitude_type == MW) return "MW";
-    exit(EXIT_FAILURE);
-}
-
-
-void get_eqID(ifstream &IF, earthquake &eq)
+void get_eqID(ifstream &IF, earthquake &eq) 
 {
     IF >> eq.id;
 }
@@ -88,12 +78,12 @@ void get_eqDate(ifstream &IF, earthquake &eq)
     IF >> eq.date;
 }
 
-void GetDateSubStr(earthquake eq, int ii, string &tempS)
+void GetDateSubStr(earthquake eq, int ii, string &tempS)     // Used to ensure only numbers are used in the data
 {
     tempS = eq.date.substr(ii,1);
 }
 
-bool CheckDateLength(earthquake eq)
+bool CheckDateLength(earthquake eq)   
 {
     if (eq.date.length() != 10) return false;
     return true;
@@ -111,20 +101,20 @@ bool CheckDayRange(int day)
     return true;
 }
 
-bool CheckYearRange(int year)
-{
-    if (year > 2015) return false;
+bool CheckYearRange(int year)        // This can obviously be changed, but I created this limit
+{                                    // because it was the last full year
+    if (year > 2014) return false;
     return true;
 }
 
-bool MonthDayComboCheck(int day, int month)
+bool MonthDayComboCheck(int day, int month)    // Ensure the day of month/month of year combo is valid
 {
     switch (month)
     {
         case 2:
             if (day > 28)
             {
-                return false;
+               return false;
                 break;
             }
         case 4: case 6: case 9: case 11:
@@ -139,19 +129,19 @@ bool MonthDayComboCheck(int day, int month)
 }
 
 
-bool CheckDateSeperators(string tempS)
+bool CheckDateSeperators(string tempS)     // Checks that date seperators are individually valid
 {
     if (tempS.compare("/") != 0 && tempS.compare("-") != 0) return false;
     return true;
 }
 
-bool CheckDateValidity(earthquake eq, int place)
+bool CheckDateValidity(earthquake eq, int place)    // Checks that only numbers are used in the date
 {
     if (!isdigit(eq.date[place])) return false;
     return true;
 }
 
-bool CheckDateSeperators2(earthquake eq, int aa, int bb)
+bool CheckDateSeperators2(earthquake eq, int aa, int bb)     // Checks that date seperators are the same
 {
     if (eq.date[aa] != eq.date[bb]) return false;
     return true;
@@ -162,7 +152,7 @@ void get_eqTime(ifstream &IF, earthquake &eq)
     IF >> eq.time;
 }
 
-void GetTimeSubStr(earthquake eq, int ii, string &tempS)
+void GetTimeSubStr(earthquake eq, int ii, string &tempS)     // Used to ensure only numbers are used in the data
 {
     tempS = eq.time.substr(ii,1);
 }
@@ -191,13 +181,13 @@ bool CheckSecondRange(int s)
     return true;
 }
 
-bool CheckTimeSeperators(string tempS, string VarExp)
+bool CheckTimeSeperators(string tempS, string VarExp)     // Checks that time seperators are individually valid
 {
     if (tempS.compare(VarExp) != 0) return false;
     return true;
 }
 
-bool CheckTimeValidity(earthquake eq, int place)
+bool CheckTimeValidity(earthquake eq, int place)     // Checks that only numbers are used in the time
 {
     if (!isdigit(eq.time[place])) return false;
     return true;
@@ -214,7 +204,7 @@ bool CheckTimeZoneLength(earthquake eq)
     return true;
 }
 
-bool CheckTimeZoneEntries(earthquake eq)
+bool CheckTimeZoneEntries(earthquake eq)     // Checks that only letters are used in the time zone
 {
     for (int i = 0; i < 3; i++)
     {
@@ -241,19 +231,40 @@ void set_eqName(ifstream &IF, earthquake &eq, string Name, string Ename, int che
     eq.earthquake_name = Ename;
 }
 
-void set_eqLongitude(ifstream &IF, earthquake &eq)
+double set_eqLongitude(ifstream &IF, earthquake &eq)     // Returns value to compare valid longitude range
 {
     IF >> eq.longitude;
+    return eq.longitude;
 }
 
-void set_eqLatitude(ifstream &IF, earthquake &eq)
+double set_eqLatitude(ifstream &IF, earthquake &eq)
 {
     IF >> eq.latitude;
+    return eq.latitude;
 }
 
-void set_eqDepth(ifstream &IF, earthquake &eq)
+double set_eqDepth(ifstream &IF, earthquake &eq)
 {
     IF >> eq.depth;
+    return eq.depth;
+}
+
+bool CheckLongRange(double Long)
+{
+    if(Long < -180 || Long > 180) return false;
+    return true;
+}
+
+bool CheckLatRange(double Lat)
+{
+    if(Lat < -180 || Lat > 180) return false;
+    return true;
+}
+
+bool CheckDepth(double d)
+{
+    if(d < 0) return false;
+    return true;
 }
 
 void changetoupper(string &temp2)
@@ -270,7 +281,7 @@ bool Check_MagTypeLength(string MT)
     return true;
 }
 
-bool set_MagType(earthquake &eq, string mag)
+bool set_MagType(earthquake &eq, string mag)     // checks for valid magnitude type
 {
     changetoupper(mag);
     if(mag == "ML")
@@ -295,6 +306,15 @@ bool set_MagType(earthquake &eq, string mag)
     }
 }
 
+string getMagType(earthquake eq)                // gets abbreviation of the earthquake magnitude type to output
+{
+    if (eq.magnitude_type == ML) return "ML";
+    if (eq.magnitude_type == MS) return "MS";
+    if (eq.magnitude_type == MB) return "MB";
+    if (eq.magnitude_type == MW) return "MW";
+    exit(EXIT_FAILURE);
+}
+
 void set_Mag(ifstream &IF, earthquake &eq)
 {
     IF >> eq.magnitude;
@@ -306,14 +326,14 @@ bool Check_Mag(earthquake &eq)
     return true;
 };
 
-void MDY(earthquake eq, string &MM, string &DD, string &YY)
+void MDY(earthquake eq, string &MM, string &DD, string &YY)     // Acquires month, day, and year from earthquake date
 {
     MM = eq.date.substr(0,2);
     DD = eq.date.substr(3,2);
     YY = eq.date.substr(6,4);
 }
 
-void HMS(earthquake eq, string &H, string &M, string &S)
+void HMS(earthquake eq, string &H, string &M, string &S)     // Acquires hour, minute, and second from earthquake time
 {
     H = eq.time.substr(0,2);
     M = eq.time.substr(3,2);
@@ -397,69 +417,87 @@ struct entries {
     string OR;
 } ENTS[300];
 
-void BadEntry(ofstream &LF, int z, int &change, string errortype)
+void BadEntry(ofstream &LF, int z, int &change, string errortype)    // Prints error in entries to log file and terminal
 {
     if (change == 0)
     {
         change++;
         cout << "Entry # " << right << setw(3) << z << " ignored.";
+        LF   << "Entry # " << right << setw(3) << z << " ignored.";
     }
     cout << " Invalid " << errortype;
     LF   << " Invalid " << errortype;
 }
 
-bool SetNC(struct entries &in, int k, string check, int index)
+bool CheckNC(struct entries &in, int k, string check)
 {
     if(check == "CE")
     {
-        ENTS[k].NC = CE;
         return true;
     } else if (check == "CI")
     {
-        ENTS[k].NC = CI;
         return true;
     } else if (check == "FA")
     {
-        ENTS[k].NC = FA;
         return true;
     } else if (check == "NP")
     {
-        ENTS[k].NC = NP;
         return true;
     } else if (check == "WR")
     {
-        ENTS[k].NC = WR;
         return true;
-    } else {
+    } else
+    {
         return false;
     }
 }
 
-bool SetSC(struct entries &in, int k, string StatCode)
+void SetNC(struct entries &in, int k, string check)
 {
-    if(StatCode.length() != 3 && StatCode.length() != 5)
+    if(check == "CE")
     {
-        return false;
+        ENTS[k].NC = CE;
+    } else if (check == "CI")
+    {
+        ENTS[k].NC = CE;
+    } else if (check == "FA")
+    {
+        ENTS[k].NC = CE;
+    } else if (check == "NP")
+    {
+        ENTS[k].NC = CE;
+    } else if (check == "WR")
+    {
+        ENTS[k].NC = CE;
+    }
+}
+
+bool CheckSC(struct entries &in, int k, string StatCode)
+{
+    int check = 0;
+    if(StatCode.length() != 3 && StatCode.length() != 5)    // Ensures Station code is either 3 or 5 characters long
+    {
+        check = 1;
     } else
     {
-        if (StatCode.length() == 5)
+        if (StatCode.length() == 5)     // Ensures code is all numbers if 5 characters long
         {
             int num = 4;
             for (int w = 0; w <= num; w++)
             {
                 if(!isdigit(StatCode[w]))
                 {
-                    return false;
-                } 
+                    check = 1;
+                }
             }
-        } else
+        } else            //// Ensures code is all letters if 3 characters long
         {
             int num = 2;
             for (int w = 0; w <= num; w++)
             {
                 if(!isalpha(StatCode[w]))
                 {
-                    return false;
+                    check = 1;
                 }
                 
                 string temp = StatCode;
@@ -468,29 +506,66 @@ bool SetSC(struct entries &in, int k, string StatCode)
                 
                 if (temp != temp1)
                 {
-                    return false;
+                    check = 1;
                 }
-                
             }
         }
-        ENTS[k].SC = StatCode;
+    }
+    if (check == 1)
+    {
+        return false;
+    } else
+    {
         return true;
     }
 }
 
-bool SetBT(entries &in, int k, string TB)
+void SetSC(struct entries &in, int k, string check)
+{
+    ENTS[k].SC = check;
+}
+
+bool CheckBT(entries &in, int k, string TB)
+{
+    if(TB == "LONGPERIOD")
+    {
+        return true;
+    } else if (TB == "SHORTPERIOD")
+    {
+        return true;
+    } else if (TB == "BROADBAND")
+    {
+        return true;
+    } else
+    {
+        return false;
+    }
+}
+
+void SetBT(entries &in, int k, string TB)
 {
     if(TB == "LONGPERIOD")
     {
         ENTS[k].BT = LONGPERIOD;
-        return true;
     } else if (TB == "SHORTPERIOD")
     {
         ENTS[k].BT = SHORTPERIOD;
-        return true;
     } else if (TB == "BROADBAND")
     {
         ENTS[k].BT = BROADBAND;
+    }
+}
+
+bool CheckIT(struct entries &in, int k, string INST)
+{
+    if(INST == "HIGHGAIN")
+    {
+        return true;
+    } else if (INST == "LOWGAIN")
+    {
+        return true;
+    } else if (INST == "ACCELEROMETER")
+    {
         return true;
     } else
     {
@@ -498,31 +573,26 @@ bool SetBT(entries &in, int k, string TB)
     }
 }
 
-bool SetIT(struct entries &in, int k, string INST)
+void SetIT(struct entries &in, int k, string INST)
 {
     if(INST == "HIGHGAIN")
     {
         ENTS[k].IT = HIGHGAIN;
-        return true;
     } else if (INST == "LOWGAIN")
     {
         ENTS[k].IT = LOWGAIN;
-        return true;
     } else if (INST == "ACCELEROMETER")
     {
         ENTS[k].IT = ACCELEROMETER;
-        return true;
-    } else
-    {
-        return false;
     }
 }
 
-bool SetOR(struct entries &in, int k, string ORE)
+bool CheckOR(struct entries &in, int k, string ORE)
 {
-    if(ORE.length() < 1 || ORE.length() > 3)
+    int check = 0;
+    if(ORE.length() < 1 || ORE.length() > 3)    // Ensures orientation  is between 1 and 3 characters long
     {
-        return false;
+        check = 1;
     }
     int alphacount = 0, numbercount = 0;
     for (int g = 1; g <= ORE.length(); g++)
@@ -535,15 +605,16 @@ bool SetOR(struct entries &in, int k, string ORE)
             numbercount++;
         } else
         {
-            return false;
+            check = 1;
         }
     }
+    
     if (alphacount != ORE.length() && numbercount != ORE.length())
     {
-        return false;
+        check = 1;
     }
     
-    if (alphacount != 0)
+    if (alphacount != 0)    // Ensures Orientation is all letters
     {
         changetoupper(ORE);
         for (int c = 1; c <= ORE.length(); c++)
@@ -551,27 +622,37 @@ bool SetOR(struct entries &in, int k, string ORE)
             string tempString = ORE.substr(c-1,1);
             if (tempString.compare("N") && tempString.compare("E") && tempString.compare("Z"))
             {
-                return false;
+                check = 1;
             }
         }
     }
     
-    if (numbercount != 0)
+    if (numbercount != 0)    // Ensures Orientation is all numbers
     {
-        for (int c = 1; c <= ENTS[k].OR.length(); c++)
+        for (int c = 1; c <= ORE.length(); c++)
         {
-            string tempString = ENTS[k].OR.substr(c-1,1);
+            string tempString = ORE.substr(c-1,1);
             if (tempString.compare("1") && tempString.compare("2") && tempString.compare("3"))
             {
-                return false;
+                check = 1;
             }
         }
+    } 
+    if (check == 1)
+    {
+        return false;
+    } else
+    {
+        return true;
     }
-    ENTS[k].OR = ORE;
-    return true;
 }
 
-void Remove_Non_Letters(struct entries &in, int y, string &BandInst)
+void SetOR(struct entries &in, int k, string check)
+{
+    ENTS[k].OR = check;
+}
+
+void Remove_Non_Letters(string &BandInst)    // Removes dashs from Instrument type and Band type 
 {
     string Altered;
     for (int i = 0; i < BandInst.length(); i++)
@@ -633,6 +714,12 @@ int NumSigs(entries &in, int k)
     return i;
 }
 
+bool NumValidEntries(ofstream &LF, int Valentries)
+{
+    if(Valentries > 300) return false;
+    return true;
+}
+
 void HeaderOutput(ofstream &OF, string DD, string MM, string YY, earthquake eq)
 {
     string StrMagType = getMagType(eq);
@@ -666,7 +753,7 @@ int main()
     logfile << "Processing input...\n";
     
     earthquake eq;
-    
+
     get_eqID(inputfile, eq);
     get_eqDate(inputfile, eq);
     
@@ -674,14 +761,14 @@ int main()
     if (CheckDateLength(eq) == false) Fail(logfile, temp);
     
     string tempstring;
-    for (int i = 0; i <= 9; i++)
+    for (int i = 0; i <= 9; i++)    // Checks each position in the data for correct variable type
     {
         if (i == 2 || i == 5)
         {
             temp = "Invalid Date Separators";
             GetDateSubStr(eq, i, tempstring);
             if(CheckDateSeperators(tempstring) == false) Fail(logfile, temp);
-        } else 
+        } else
         {
             temp = "Non-Number in Date";
             if(CheckDateValidity(eq, i) == false) Fail(logfile, temp);
@@ -720,7 +807,7 @@ int main()
     if (CheckTimeLength(eq) == false) Fail(logfile, temp);
     
     string expVar;
-    for (int i = 0; i <= 11; i++)
+    for (int i = 0; i <= 11; i++)     // Checks each position in the time for correct variable type
     {
         if (i == 2 || i == 5)
         {
@@ -763,7 +850,6 @@ int main()
     temp = "Invalid Second";
     if (CheckSecondRange(intsecond) == false) Fail(logfile, temp);
     
-    
     temp = "Invalid Day/Month Combination";
     if (MonthDayComboCheck(intday, intmonth) == false) Fail(logfile, temp);
     
@@ -775,16 +861,23 @@ int main()
     
     set_eqName(inputfile, eq, Name, Ename, check, check2);
     
-    string Longitude, Latitude, Depth;
+    double Longitude, Latitude, Depth;
     
-    set_eqLongitude(inputfile, eq);
-    set_eqLatitude(inputfile, eq);
-    set_eqDepth(inputfile, eq);
+    Longitude = set_eqLongitude(inputfile, eq);
+    Latitude = set_eqLatitude(inputfile, eq);
+    Depth = set_eqDepth(inputfile, eq);
+
+    temp = "Longitude out of Range";
+    if (CheckLongRange(Longitude) == false) Fail(logfile, temp);
+    temp = "Latitude out of Range";
+    if (CheckLatRange(Latitude) == false) Fail(logfile, temp);
+    temp = "Negative depth";
+    if (CheckDepth(Depth) == false) Fail(logfile, temp);
     
     string magtype;
     inputfile >> magtype;
     temp = "Invalid Magnitude Type Length";
-    if( Check_MagTypeLength(magtype) == false) Fail(logfile, temp);
+    if(Check_MagTypeLength(magtype) == false) Fail(logfile, temp);
     
     temp = "Invalid Magnitude Type";
     if (set_MagType(eq, magtype) == false) Fail(logfile, temp);
@@ -808,42 +901,41 @@ int main()
     {
         numentries++;
         changer = 0;
-
-        if(SetNC(in, validentries, NetCode, 0) == false)
+        
+        if(CheckNC(in, validentries, NetCode) == false)    // Checks if Network Code is valid
         {
-            
             BadEntry(logfile, numentries, changer, "Network Code.");
         }
         
         inputfile >> StatCode;
         
-        if(SetSC(in, validentries, StatCode) == false)
+        if(CheckSC(in, validentries, StatCode) == false)     // Checks if Station Name is valid
         {
             BadEntry(logfile, numentries, changer, "Station Name.");
         }
         
         inputfile >> TypeBand;
-        Remove_Non_Letters(in, validentries + 1, TypeBand);
+        Remove_Non_Letters(TypeBand);
         
-        if(SetBT(in,validentries, TypeBand) == false)
+        if(CheckBT(in,validentries, TypeBand) == false)     // Checks if Band Type is valid
         {
             BadEntry(logfile, numentries, changer, "Band Type.");
         }
         
         inputfile >> TypeInst;
-        Remove_Non_Letters(in, validentries + 1, TypeInst);
+        Remove_Non_Letters(TypeInst);
         
-        if(SetIT(in, validentries, TypeInst) == false)
+        if(CheckIT(in, validentries, TypeInst) == false)     // Checks if Instrument Type is valid
         {
             BadEntry(logfile, numentries, changer, "Instrument Type.");
         }
         
         inputfile >> Orient;
         
-        if(SetOR(in, validentries, Orient) == false)
+        if(CheckOR(in, validentries, Orient) == false)     // Checks if Orientation is valid
         {
             BadEntry(logfile, numentries, changer, "Orientation.");
-        } 
+        }
    
         if (changer !=0)
         {
@@ -852,13 +944,18 @@ int main()
             countbad++;
         } else
         {
-            newsignals = NumSigs(in, validentries);
+            SetNC(in, validentries, NetCode);     // Stores each variable of valid entries into the required array
+            SetSC(in, validentries, StatCode);
+            SetBT(in, validentries, TypeBand);
+            SetIT(in, validentries, TypeInst);
+            SetOR(in, validentries, Orient);
             
+            newsignals = NumSigs(in, validentries);
             for (int i = 0; i < newsignals ; i++)
             {
-                NetworkCode[totsignals+i] = getNC(in, validentries);
+                NetworkCode[totsignals+i] = getNC(in, validentries);    // Stores valid station readings into these array
                 StationName[totsignals+i] = getSN(in, validentries);
-                NCabbrev[totsignals+i]    = getBT(eq, in, validentries);
+                NCabbrev[totsignals+i]    = getBT(eq, in, validentries);     // Get necessary abreviations for intstrument and band
                 ITabbrev[totsignals+i]    = getIT(eq, in, validentries);
                 ORspot[totsignals+i]      = getOR(in, validentries, i);
             }
@@ -871,7 +968,7 @@ int main()
     
     for (int i = 0; i < totsignals; i++)
     {
-         printout(outputfile, StationName[i], eq, NetworkCode[i], NCabbrev[i], ITabbrev[i], ORspot[i]);
+        printout(outputfile, StationName[i], eq, NetworkCode[i], NCabbrev[i], ITabbrev[i], ORspot[i]);
     }
     
     int countgood = numentries - countbad;
