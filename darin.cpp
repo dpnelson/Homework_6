@@ -91,13 +91,13 @@ bool CheckDateLength(earthquake eq)
 
 bool CheckMonthRange(int mon)
 {
-    if (mon < 0 || mon > 12) return false;
+    if (mon < 1 || mon > 12) return false;
     return true;
 }
 
 bool CheckDayRange(int day)
 {
-    if (day < 0 || day > 31) return false;
+    if (day < 1 || day > 31) return false;
     return true;
 }
 
@@ -269,9 +269,12 @@ bool CheckDepth(double d)
 
 void changetoupper(string &temp2)
 {
-    for (int i = 0; i <= temp2.size(); i++)
+    for (unsigned i = 0; i <= temp2.size(); i++)
     {
-        temp2[i] = toupper(temp2[i]);
+        if (isalpha(temp2[i]))
+        {
+            temp2[i] = toupper(temp2[i]);
+        }
     }
 }
 
@@ -459,16 +462,16 @@ void SetNC(struct entries &in, int k, string check)
         ENTS[k].NC = CE;
     } else if (check == "CI")
     {
-        ENTS[k].NC = CE;
+        ENTS[k].NC = CI;
     } else if (check == "FA")
     {
-        ENTS[k].NC = CE;
+        ENTS[k].NC = FA;
     } else if (check == "NP")
     {
-        ENTS[k].NC = CE;
+        ENTS[k].NC = NP;
     } else if (check == "WR")
     {
-        ENTS[k].NC = CE;
+        ENTS[k].NC = WR;
     }
 }
 
@@ -527,10 +530,10 @@ void SetSC(struct entries &in, int k, string check)
 
 bool CheckBT(entries &in, int k, string TB)
 {
-    if(TB == "LONGPERIOD")
+    if(TB == "LONG-PERIOD" || TB == "LONGPERIOD")
     {
         return true;
-    } else if (TB == "SHORTPERIOD")
+    } else if (TB == "SHORT-PERIOD" || TB == "SHORTPERIOD")
     {
         return true;
     } else if (TB == "BROADBAND")
@@ -544,10 +547,10 @@ bool CheckBT(entries &in, int k, string TB)
 
 void SetBT(entries &in, int k, string TB)
 {
-    if(TB == "LONGPERIOD")
+    if(TB == "LONG-PERIOD" || TB == "LONGPERIOD" )
     {
         ENTS[k].BT = LONGPERIOD;
-    } else if (TB == "SHORTPERIOD")
+    } else if (TB == "SHORT-PERIOD" || TB == "SHORTPERIOD")
     {
         ENTS[k].BT = SHORTPERIOD;
     } else if (TB == "BROADBAND")
@@ -558,10 +561,10 @@ void SetBT(entries &in, int k, string TB)
 
 bool CheckIT(struct entries &in, int k, string INST)
 {
-    if(INST == "HIGHGAIN")
+    if(INST == "HIGH-GAIN" || INST == "HIGHGAIN")
     {
         return true;
-    } else if (INST == "LOWGAIN")
+    } else if (INST == "LOW-GAIN" || INST == "LOWGAIN")
     {
         return true;
     } else if (INST == "ACCELEROMETER")
@@ -575,10 +578,10 @@ bool CheckIT(struct entries &in, int k, string INST)
 
 void SetIT(struct entries &in, int k, string INST)
 {
-    if(INST == "HIGHGAIN")
+    if(INST == "HIGH-GAIN" || INST == "HIGHGAIN")
     {
         ENTS[k].IT = HIGHGAIN;
-    } else if (INST == "LOWGAIN")
+    } else if (INST == "LOW-GAIN" || INST == "LOWGAIN")
     {
         ENTS[k].IT = LOWGAIN;
     } else if (INST == "ACCELEROMETER")
@@ -589,13 +592,18 @@ void SetIT(struct entries &in, int k, string INST)
 
 bool CheckOR(struct entries &in, int k, string ORE)
 {
-    int check = 0;
-    if(ORE.length() < 1 || ORE.length() > 3)    // Ensures orientation  is between 1 and 3 characters long
+    int check = 0, x = 0, length = 0;
+    while (isalpha(ORE[x]) || isdigit(ORE[x]))
+    {
+        length++;
+        x++;
+    }
+    if(length < 1 || length > 3)    // Ensures orientation  is between 1 and 3 characters long
     {
         check = 1;
     }
     int alphacount = 0, numbercount = 0;
-    for (int g = 1; g <= ORE.length(); g++)
+    for (int g = 1; g <= length; g++)
     {
         if (isalpha(ORE[g-1]))
         {
@@ -609,7 +617,7 @@ bool CheckOR(struct entries &in, int k, string ORE)
         }
     }
     
-    if (alphacount != ORE.length() && numbercount != ORE.length())
+    if (alphacount != length && numbercount != length)
     {
         check = 1;
     }
@@ -617,7 +625,7 @@ bool CheckOR(struct entries &in, int k, string ORE)
     if (alphacount != 0)    // Ensures Orientation is all letters
     {
         changetoupper(ORE);
-        for (int c = 1; c <= ORE.length(); c++)
+        for (int c = 1; c <= length; c++)
         {
             string tempString = ORE.substr(c-1,1);
             if (tempString.compare("N") && tempString.compare("E") && tempString.compare("Z"))
@@ -629,7 +637,7 @@ bool CheckOR(struct entries &in, int k, string ORE)
     
     if (numbercount != 0)    // Ensures Orientation is all numbers
     {
-        for (int c = 1; c <= ORE.length(); c++)
+        for (int c = 1; c <= length; c++)
         {
             string tempString = ORE.substr(c-1,1);
             if (tempString.compare("1") && tempString.compare("2") && tempString.compare("3"))
@@ -652,12 +660,14 @@ void SetOR(struct entries &in, int k, string check)
     ENTS[k].OR = check;
 }
 
-void Remove_Non_Letters(string &BandInst)    // Removes dashs from Instrument type and Band type 
+void Remove_Invalid_Chars(string &BandInst)    // Removes dashs from Instrument type and Band type
 {
     string Altered;
-    for (int i = 0; i < BandInst.length(); i++)
+    string temp = BandInst.substr(1);
+    for (unsigned i = 0; i < BandInst.length(); i++)
     {
-        if (isalpha(BandInst[i]))
+        string temp = BandInst.substr(i);
+        if (isalpha(BandInst[i]) || temp.compare("-"))
         {
             Altered += BandInst[i];
         }
@@ -733,6 +743,23 @@ void printout(ofstream &OF, string SN, earthquake &eq, string NetC, string SCab,
     OF << eq.id << "." << NetC << "." << SN << "." << SCab << ITab << O << "\n";
 }
 
+void print2(ofstream &LF, string texty, int n)
+{
+    cout << texty << n << "\n";
+    LF   << texty << n << "\n";
+}
+
+void printheader(ofstream &LF, string top)
+{
+    cout << top;
+    LF   << top;
+}
+
+void backslash(ofstream &LF, string ret)
+{
+    cout << ret;
+    LF   << ret;
+}
 
 int main()
 {
@@ -743,14 +770,13 @@ int main()
     
     cout << "Enter inputfile name: ";
     cin  >> inputfilename;
+    cout << "\n";
     open_input(inputfile, inputfilename);
     open_outputfiles(logfile, "log file", "darin.log");
     open_outputfiles(outputfile, "output file", "darin.out");
     
-    cout    << "\nOpening file: darin.in\n";
-    logfile << "Opening file: darin.in\n";
-    cout    << "Processing input...\n";
-    logfile << "Processing input...\n";
+    printheader(logfile, "Opening file: darin.in\n");
+    printheader(logfile, "Processing input...\n");
     
     earthquake eq;
 
@@ -886,8 +912,7 @@ int main()
     temp = "Negative Magnitude";
     if (Check_Mag(eq) == false) Fail(logfile, temp);
     
-    cout << "Header read correctly!\n";
-    logfile << "Header read correctly!\n";
+    printheader(logfile, "Header read correctly!\n");
     
     HeaderOutput(outputfile, D, monthstring, Y, eq);
     
@@ -899,6 +924,11 @@ int main()
     string NetworkCode[900], StationName[900], NCabbrev[900], ITabbrev[900], ORspot[900];
     while (inputfile >> NetCode)
     {
+        inputfile >> StatCode;
+        inputfile >> TypeBand;
+        inputfile >> TypeInst;
+        inputfile >> Orient;
+        
         numentries++;
         changer = 0;
         
@@ -907,30 +937,24 @@ int main()
             BadEntry(logfile, numentries, changer, "Network Code.");
         }
         
-        inputfile >> StatCode;
-        
         if(CheckSC(in, validentries, StatCode) == false)     // Checks if Station Name is valid
         {
             BadEntry(logfile, numentries, changer, "Station Name.");
         }
         
-        inputfile >> TypeBand;
-        Remove_Non_Letters(TypeBand);
+        Remove_Invalid_Chars(TypeBand);     // Remove 
         
         if(CheckBT(in,validentries, TypeBand) == false)     // Checks if Band Type is valid
         {
             BadEntry(logfile, numentries, changer, "Band Type.");
         }
         
-        inputfile >> TypeInst;
-        Remove_Non_Letters(TypeInst);
+        Remove_Invalid_Chars(TypeInst);
         
         if(CheckIT(in, validentries, TypeInst) == false)     // Checks if Instrument Type is valid
         {
             BadEntry(logfile, numentries, changer, "Instrument Type.");
         }
-        
-        inputfile >> Orient;
         
         if(CheckOR(in, validentries, Orient) == false)     // Checks if Orientation is valid
         {
@@ -939,8 +963,7 @@ int main()
    
         if (changer !=0)
         {
-            cout << "\n";
-            logfile << "\n";
+            backslash(logfile, "\n");
             countbad++;
         } else
         {
@@ -973,12 +996,9 @@ int main()
     
     int countgood = numentries - countbad;
     
-    cout    << "Total invalid entries ignored: " << countbad << "\n";
-    logfile << "Total invalid entries ignored: " << countbad << "\n";
-    cout    << "Total valid entries read: " << countgood << "\n";
-    logfile << "Total valid entries read: " << countgood << "\n";
-    cout    << "Total signal names processed: " << totsignals << "\n";
-    logfile << "Total signal names processed: " << totsignals << "\n";
+    print2(logfile, "Total invalid entries ignored: ", countbad);
+    print2(logfile, "Total valid entries read: ", countgood);
+    print2(logfile, "Total signal names processed: ", totsignals);
     
     return 0;
 
